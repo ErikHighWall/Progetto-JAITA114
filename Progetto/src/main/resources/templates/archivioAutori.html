@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Archivio Autori</title>
+    <link rel="stylesheet" href="/css/libriOrder.css" type="text/css">
+</head>
+<body>
+    <h1>Archivio Autori</h1>
+    
+    <a id="search-button" th:if="${session.loggato=='ok'} " href="/homeUtente">HOME</a>
+    <a id="search-button" th:if="${session.loggato!='ok'}"href="/home">HOME</a>
+    <a id="search-button" th:if="${session.loggato=='ok'}" href="/api/libro/libriUtente">I TUOI LIBRI</a>
+    <a id="search-button"  href="/api/libro/all">ARCHIVIO LIBRI</a>
+   
+   
+    <table>
+        <thead>
+            <TH>COVER</TH>
+            <TH>NOME</TH>
+            <th>COGNOME</th>
+            <th>BIOGRAFIA</th>
+            <TH>RATING</TH>
+            <th>Lista libri</th>
+            <th id="colum" th:if="${session.loggato == 'ok' && session.ruolo=='admin'}" style="display: none;">Utils</th>
+            
+        </thead>
+        <tbody>
+            <tr th:each="autori:${autore}">
+
+                <td th:src="${autori.url}"><img th:src="${autori.url}" alt="Copertina"></td>
+                <td th:text="${autori.nome}"></td>
+                <td th:text="${autori.cognome}"></td>
+                <td th:text="${autori.biografia}"></td>
+                <td th:text="${autori.rating}"></td>
+                <td>
+                    <form id="menutendina" th:action="@{/api/libro/libroById}" method="get">
+                        <select name="idLibro">
+                            
+                            <div th:each="libro : ${autori.libri}">
+                                <option th:value="${libro.id}" th:text="${libro.titolo}"></option>
+                            </div>
+                        </select>
+                        <br>
+                        <button id="menubottone" type="submit">Vai</button>
+                    </form>
+
+                </td>
+                <td th:if="${session.loggato == 'ok' && session.ruolo=='admin'}">
+          
+                    <button
+                   class="modifica-button"
+                    
+                   th:modifica-id="${autori.id}"
+                   th:modifica-nome="${autori.nome}"
+                     th:modifica-cognome="${autori.cognome}"
+                        th:modifica-biografia="${autori.biografia}"
+                        th:modifica-rating="${autori.rating}"
+                        th:modifica-url="${autori.url}"
+
+
+    
+                    style="display: none; padding: 10px 20px; background-color: #986a08; border: none; cursor: pointer;" onclick="modifica(this)">Modifica
+                
+                </button>
+                <br>
+                <br>
+                    <a class="delete-button" style="display: none; padding: 10px 20px; background-color: #980808; border: none; cursor: pointer;" th:href="|/api/autore/delete?idAutore=${autori.id}|">Elimina</a>
+                </td>
+                  
+            </tr>
+        </tbody>
+
+        
+
+
+</table>
+
+
+ 
+<div class="centered-buttons" th:if="${session.ruolo == 'admin' && session.loggato=='ok'}" style="display: flex; justify-content: center;">
+    <button id="inserisciButton">Inserisci un nuovo autore!</button>
+    <button style ="display: block;" id="mod" onclick="modificaAutore()">Apri funzionalità di modifica autori</button>
+    <button id="del_but" onclick="eliminaAutore()">Apri funzionalità di eliminazione autori</button><br>
+    <br>
+    
+</div>
+<br>
+<div class="centered-buttons" th:if="${session.ruolo == 'admin' && session.loggato=='ok'}" style="display: flex; justify-content: center;">
+    <button style ="display: none;" id="chiudi-inserisciButton" onclick="chiudiModificaAutori()">Chiudi funzionalità di modifica autori</button>
+    <button style ="display: none;" id="chiudi-del_but" onclick="chiudiEliminaAutori()">Chiudi funzionalità di eliminazione autori</button>  <br>
+    <br>
+</div>
+
+<div class="form-container" id="inserisci"   th:if="${session.ruolo == 'admin' && session.loggato=='ok'}" style="display: none;">
+    <h4>Aggiungi Autore</h4>
+    <!--Uso la form per permettere l'inserimento di dati da parte dell'utente
+    Se faccio una richiesta inserimento dati
+    e uso il body allora probabilmente sfrutterò il verbo POST
+    questi dati potranno così essere recuperati dal backend e li passiamo al server-->
+    
+    <form action="/api/autore/addu" method="post" >
+       
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" name="nome" required><br>
+        <label for="cognome">Cognome</label>
+        <input type="text" id="cognome" name="cognome" required><br>
+        <label for="biografia">Biografia</label>
+        <input type="text" id="biografia" name="biografia" required><br>
+        <label for="rating">Rating</label>
+        <input type="number" id="rating" name="rating" required><br>
+        <label for="url">Url</label>
+        <input type="text" id="url" name="url_autore" required><br>
+
+        <br>
+
+
+ <button id="crea">Aggiungi Autore!</button>
+ <button id="annulla">Annulla</button>
+ <!--<input id="crea" type="submit" value="Aggiungi un nuovo libro">--> 
+    </form>
+     
+    </div>
+    <div class="form-container" id="div-modifica"  th:if="${session.ruolo == 'admin' && session.loggato=='ok'} " style="display: none;">
+        <h4>Modifica</h4>
+
+        
+        <form action="/api/autore/update" method="post" >
+           
+            <label for="nome">Nome</label>
+            <input type="text" id="modifica-nome" name="nome" required><br>
+            <label for="cognome">Cognome</label>
+            <input type="text" id="modifica-cognome" name="cognome" required><br>
+            <label for="biografia">Biografia</label>
+            <input type="text" id="modifica-biografia" name="biografia" required><br>
+            <label for="rating">Rating</label>
+            <input type="number" id="modifica-rating" name="rating" required><br>
+            <label for="url">Url</label>
+            <input type="text" id="modifica-url" name="url_autore" required><br>
+            <input type="hidden" id="modifica-id" name="id" required><br>
+
+            <button id="modifica">Modifica</button>
+            <button id="annulla-modifica" onclick="annullaModifica()">Annulla</button>
+
+            <br>
+    
+    
+     <!--<input id="crea" type="submit" value="Aggiungi un nuovo libro">--> 
+        </form>
+         
+        </div>
+
+    
+    <script src="script.js"></script>
+    <div class="footer" style="text-align: center;
+    margin-top: 40px;
+    padding: 10px;
+    background-color: grey;
+    color: #fff;">
+        <footer style="
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        text-align: center;">
+            <a href="/chiSiamo" id ="chiSiamo">Chi siamo</a>
+            <a href="/FAQ" id ="FAQ">FAQ</a>
+            <a href="/privacyPolicy" id ="privacyPolicy">Privacy policy</a>
+            <a href="/lavoraConNoi" id ="lavoraConNoi">Lavora con noi</a> 
+            <!-- Aggiungi link ai social -->
+            <a href="https://www.facebook.com/BookWarm" target="_blank" id="facebook">
+                <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/facebook-2752192-2285009.png" alt="Facebook" style="width: 20px; height: 20px; vertical-align: middle;">
+                </a>
+                <a href="https://www.instagram.com/BookWarm" target="_blank" id="instagram">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png" alt="Instagram" style="width: 20px; height: 20px; vertical-align: middle;">
+        </footer>
+    </div>
+    
+</body>
+<script>
+    var observer = new MutationObserver(function(mutations) {
+    var chiudiInserisciButton = document.getElementById('chiudi-inserisciButton');
+    var chiudiDelBut = document.getElementById('chiudi-del_but');
+    var colum = document.getElementById('colum');
+
+    if (chiudiInserisciButton.style.display !== 'none' || chiudiDelBut.style.display !== 'none') {
+        colum.style.display = 'table-cell';
+    } else {
+        colum.style.display = 'none';
+    }
+});
+
+var config = { attributes: true, childList: true, subtree: true };
+
+observer.observe(document.body, config);
+    document.getElementById('inserisciButton').addEventListener('click', function() {
+        document.getElementById('inserisciButton').style.display = 'none';
+        document.getElementById('inserisci').style.display = 'block';
+    });
+    document.getElementById('annulla').addEventListener('click', function() {
+    document.getElementById('inserisci').style.display = 'none';
+    document.getElementById('inserisciButton').style.display = 'block';
+});
+
+function annullaModifica() {
+    // Get the div
+    var div = document.getElementById('div-modifica');
+ 
+
+    // Hide the div
+    div.style.display = 'none';
+
+    // Get all input elements within the div
+    var inputs = div.getElementsByTagName('input');
+
+    // Clear the input fields
+    for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].type == 'hidden') {
+            continue; // Skip hidden fields
+        }
+        inputs[i].value = '';
+    }
+}
+
+function eliminaAutore() {
+    var buttons = document.getElementsByClassName('delete-button');
+    var button = document.getElementById('del_but');
+    var chiudiButton = document.getElementById('chiudi-del_but');
+    chiudiButton.style.display = 'block';
+button.style.display = 'none';
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = 'inline';
+    }
+}
+function modificaAutore() {
+
+    var button = document.getElementById('mod');
+button.style.display = 'none';
+
+    var buttons = document.getElementsByClassName('modifica-button');
+
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = 'inline';
+    }
+    var chiudiButton = document.getElementById('chiudi-inserisciButton');
+    chiudiButton.style.display = 'block';
+
+}
+
+function chiudiModificaAutori() {
+    var chiudiButton = document.getElementById('chiudi-inserisciButton');
+    var modificaButton = document.getElementById('mod'); // Replace 'modifica' with the actual id of the "modifica" button
+
+    // Toggle the visibility of the "chiudi-inserisciButton" button
+    chiudiButton.style.display =  'none';
+
+    // Toggle the visibility of the "modifica" button
+    modificaButton.style.display = 'block';
+    var buttons = document.getElementsByClassName('modifica-button');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = 'none';
+    }
+}
+function chiudiEliminaAutori() {
+    var chiudiButton = document.getElementById('chiudi-del_but');
+    var anotherButton = document.getElementById('del_but'); 
+    var buttons = document.getElementsByClassName('delete-button');
+    // Toggle the visibility of the "chiudi-del_but" button
+    chiudiButton.style.display = (chiudiButton.style.display == 'none') ? 'block' : 'none';
+
+    // Toggle the visibility of the other button
+    anotherButton.style.display = (anotherButton.style.display == 'none') ? 'block' : 'none';
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.display = 'none';
+    }
+
+}
+
+function modifica(oggetto) {
+    var div = document.getElementById('div-modifica');
+    var id=document.getElementById('modifica-id');
+    var nome=document.getElementById('modifica-nome');
+    var cognome=document.getElementById('modifica-cognome');
+    var biografia=document.getElementById('modifica-biografia');
+    var rating=document.getElementById('modifica-rating');
+    var url=document.getElementById('modifica-url');
+
+    id.value=oggetto.getAttribute('modifica-id');
+    nome.value=oggetto.getAttribute('modifica-nome');
+    cognome.value=oggetto.getAttribute('modifica-cognome');
+    biografia.value=oggetto.getAttribute('modifica-biografia');
+    rating.value=oggetto.getAttribute('modifica-rating');
+    url.value=oggetto.getAttribute('modifica-url');
+
+    div.style.display = 'block';
+
+}
+    </script>
+   
+</html>

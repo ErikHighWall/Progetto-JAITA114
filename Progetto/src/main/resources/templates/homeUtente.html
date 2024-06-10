@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/homeUtente.css" type="text/css">
+    <script th:inline="javascript">
+        var list = /*[[${libri}]]*/ [];
+        var list1 = /*[[${autori}]]*/ [];
+        var libriChallenge = /*[[${libriChallenge}]]*/ [];
+        
+       </script>
+    <script src="/js/libri.js"></script>
+ 
+    <title>BookWarm</title>
+</head>
+<body>
+    
+
+    <video autoplay muted loop id="background-video">
+        <source src="https://videos.pexels.com/video-files/4864405/4864405-uhd_4096_2160_25fps.mp4" type="video/mp4">
+        Il tuo browser non supporta il tag video.
+    </video>
+    <h2>
+        <img src="https://i.ibb.co/wM8h3cP/bookwarm.png" alt="bookwarm"></a>
+    </h2>
+    <h4 th:text="${actualUser}"></h4>
+    
+    <a href="/api/libro/all" id="Archivio" >Archivio Completo</a>
+    <a href="/api/autore/all" id="Autori" >Archivio Autori</a>
+    <a href="/api/libro/libriUtente" id="libriP" >I tuoi libri</a>
+    
+    <br>
+    
+    <div class="search-container">
+        <form action="/api/libro/search" method="post" id="search-form">
+            
+            <input type="text" id="search-input" name="query" placeholder="Cerca...">
+            <button id="search-button" type="submit" href="" disabled>
+                search
+            </button>
+            <div id="ris-ricerca" ></div>
+      
+            
+        </form>
+    </div>
+    <br>
+    
+    <div class="right-box" id="right-box">
+        <h3>Gestione Account</h3>
+        
+        <form action="/modificaUsername" method="POST">
+            <label for="newUsername">Nuovo Username:</label><br>
+            <input type="text" id="newUsername" name="newUsername" required><br>
+            <input type="submit" value="Modifica Username">
+        </form>
+        <br>
+        <div th:if="${errorMessage != null}">
+            <p th:text="${errorMessage}" style="color: red;"></p>
+        </div>
+        <br>
+        <form action="/modificaPassword" method="POST">
+            <label for="oldPassword">Vecchia Password:</label><br>
+            <input type="password" id="oldPassword" name="oldPassword" required><br>
+            <label for="newPassword">Nuova Password:</label><br>
+            <input type="password" id="newPassword" name="newPassword" required><br>
+            <input type="submit" value="Modifica Password">
+        </form>
+        <br>
+        <div th:if="${error != null}">
+            <p th:text="${error}" style="color: red;"></p>
+        </div>
+        <br>
+        <form id="deleteAccountForm" action="/eliminaAccount" method="POST">
+            <input type="submit" value="Elimina Account">
+        </form>
+        <a href="/logout" id ="logout">Logout</a>
+        
+    </div>
+    
+
+
+    
+    
+    <form action="/recenti" method="GET" id="libri-recenti">
+        
+    
+    <div id="libri-recenti">
+        <h2>Ultime Uscite</h2>
+        <div>
+            <table>
+
+                
+                <tbody>
+                       
+                    <li id="listina" th:each="libro:${libr}">      
+                        <a id ="Fiveimg" th:href="|/api/libro/libroById?idLibro=${libro.id}|">
+                            <img th:src="${libro.url}" alt="Copertina"></a>
+         
+                    </li>
+                </tbody>
+                <div>
+                    <a style="color: red;" href="/api/libro/recenti">...</a>
+                </div>
+                
+
+            </table>
+        </div>
+        
+
+    </div>
+
+</form>
+
+    <br>
+    <br>
+
+    <div id="libri-consigliati">
+        <h2>Libri Consigliati</h2>
+        <div>
+            
+            <li th:each="libro:${librG}">      
+                <a id ="Fiveimg"  th:href="|/api/libro/libroById?idLibro=${libro.id}|"><img th:src="${libro.url}" alt="Copertina"></a>
+            </li>
+            
+        </div>
+        <div>
+            <a style="color: red;" href="/api/libro/genereUtente">...</a>
+        </div>
+    </div>
+
+
+ 
+
+    
+        
+                <div  id="reading-challenge"  th:if="${session.loggato=='ok' }" >
+        
+                    <div th:if="${libriChallenge>0}">
+                    <h2>Reading Challenge</h2>
+                    
+                    <form action="/api/libro/challenge" method="post" id="challenge-form">
+                        <div class="flex-container">
+                            <a id="numero-libriUtente" th:text="${nlibriUtente}"></a>
+                            <input type="number" name="libriChallenge" th:value="${libriChallenge}" style="width: 70px; background-color: white; ">
+                            <br>
+                            <button id="challenge" type="submit">Aggiorna</button>
+                        </div>
+                     
+                    </form>
+                    <div th:if="${merito}">
+                        <div th:if="${merito}">
+                            <h2 class="animated color-changing">Bravo,hai superato la tua reading challenge!</h2>
+                        </div>
+                </div>
+            </div>
+            <div th:if="${libriChallenge==0}">
+                <h2>Imposta un obbiettivo per la tua challenge!</h2>
+                    
+                <form action="/api/libro/challenge" method="post" id="challenge-form">
+                    <div class="flex-container">
+                        <input type="number" name="libriChallenge" th:value="${libriChallenge}" style="width: 50px; background-color: transparent;">
+                        <button id="challenge" type="submit">Aggiorna</button>
+                    </div>
+                 
+                </form>
+                </div>
+                </div>
+        
+
+        <div class="footer" style="text-align: center;
+        margin-top: 40px;
+        padding: 10px;
+        background-color: grey;
+        color: #fff;">
+            <footer style="
+            left: 0;
+             bottom: 0;
+            width: 100%;
+            text-align: center;">
+                <a href="/chiSiamo" id ="chiSiamo">Chi siamo</a>
+                <a href="/FAQ" id ="FAQ">FAQ</a>
+                <a href="/privacyPolicy" id ="privacyPolicy">Privacy policy</a>
+                <a href="/lavoraConNoi" id ="lavoraConNoi">Lavora con noi</a> 
+                
+                <!-- Aggiungi link ai social -->
+                <a href="https://www.facebook.com/BookWarm" target="_blank" id="facebook">
+                <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/facebook-2752192-2285009.png" alt="Facebook" style="width: 20px; height: 20px; vertical-align: middle;">
+                </a>
+                <a href="https://www.instagram.com/BookWarm" target="_blank" id="instagram">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png" alt="Instagram" style="width: 20px; height: 20px; vertical-align: middle;">
+            </footer>
+        </div>
+
+      
+    
+</body>
+
+<script>
+
+
+  function showCh(){
+
+    var partecipaButton = document.getElementById('bottone-partecipaC');
+    var chiudiButton = document.getElementById('bottone-chiudiC');
+  
+    console.log('partecipaButton:', partecipaButton);
+    console.log('chiudiButton:', chiudiButton);
+    console.log('readingChallengeDiv:', readingChallengeDiv);
+    partecipaButton.style.display = 'none'; 
+    chiudiButton.style.display = 'block'; 
+    var readingChallengeDiv = document.getElementById('reading-challenge');
+readingChallengeDiv.style.display = 'block';
+  
+}
+
+    
+    function visCh(){
+        document.getElementById('visualizza-c').style.display = 'none'; // Hide the "Visualizza" button
+        document.getElementById('bottone-chiudiC').style.display = 'block'; // Show the "Chiudi" button
+        document.getElementById('reading-challenge').style.display = 'block'; 
+    }
+
+
+    function hideCh() {
+    document.getElementById('bottone-chiudiC').style.display = 'none'; // Hide the "Chiudi" button
+    document.getElementById('reading-challenge').style.display = 'none'; // Hide the "reading-challenge" div
+    if (libriChallenge == 0) {
+        document.getElementById('bottone-partecipaC').style.display = 'block'; // Show the "Partecipa alla challenge di lettura!" button
+    } else {
+        document.getElementById('visualizza-c').style.display = 'block'; // Show the "Visualizza challenge" button
+    }
+}
+
+document.getElementById('search-input').addEventListener('input', function() {
+    var searchInput = document.getElementById('search-input').value;
+    document.getElementById('search-button').disabled = !searchInput;
+});
+
+
+const input = document.getElementById('search-input');
+    input.addEventListener("keyup",autocomp);
+    const search = document.getElementById('ris-ricerca');
+
+    function autocomplete(valore){
+      if(valore.length === 0){
+        return [];
+      }
+      var valoreLower=valore.toLowerCase();
+      var controllo=false;
+      
+      return list.filter((libro) => {
+
+for(var i=0;i<valoreLower.length;i++)
+{
+        if(libro.titolo.toLowerCase().charAt(i)===valoreLower.charAt(i) )
+        {
+          
+            controllo=true;
+        }else{
+            controllo=false;
+            break;
+        }
+    }
+ 
+if(controllo===true)
+        return libro.titolo
+      }
+    )
+  
+
+}
+function autocompleteA(valore){
+
+    if(valore.length === 0){
+        return [];
+      }
+      var valoreLower=valore.toLowerCase();
+      var controllo=false;
+
+  return list1.filter((autore) => {
+
+for(var i=0;i<valoreLower.length;i++)
+{
+        if(autore.cognome.toLowerCase().charAt(i)===valoreLower.charAt(i) )
+        {
+          
+            controllo=true;
+        }else{
+            controllo=false;
+            break;
+        }
+    }
+ 
+if(controllo===true)
+        return autore.cognome;
+      }
+    )
+    }
+  
+  function autocomp(input){
+   
+   
+    let consigliati= "";
+    let consigliati1= "";
+    var cLibro=0;
+    var cAutore=0;
+    const titoli= autocomplete(input.target.value);
+    const autori= autocompleteA(input.target.value);
+titoli.forEach((titolo) => {
+    if(cLibro<6)
+  consigliati += `<li  onclick="seleziona(event)"><span style="color:blue;">L</span>: ${titolo.titolo}</li>`;
+
+  cLibro++;
+
+ 
+    
+  })
+    autori.forEach((autore) => {
+        if(cAutore<6)
+
+        consigliati1 += `<li onclick="seleziona(event)"><span style="color:green;">A</span>: ${autore.cognome}</li>`;
+        cAutore++;
+    })
+  let consigliatiSuper=consigliati+" "+consigliati1+" ";
+
+  search.innerHTML = `<ul>${consigliatiSuper}</ul>`;
+ 
+
+}
+function seleziona(event){
+  search.innerHTML = "";
+  input.value = event.target.textContent.substring(3);
+  
+}
+window.onpageshow = function() {
+    document.getElementById('search-input').value = '';
+}
+//ad ogni apertura della pagina il campo di ricerca viene resettato,anche se si torna indietro tramite freccia
+</script>
+
+
+
+</html>
